@@ -15,7 +15,7 @@ export const PlayingField = ({field, setUser}: any) => {
                         key={indexL + indexC}
                         onClick={() => !el.player ? clickHendler([el.indexLine, el.indexCell]) : ''}
                     >
-                        <div>{el.weligth}</div>
+                        {/*<div>{el.weligth}</div>*/}
                         <div>{el.player}</div>
                     </div>
                 )

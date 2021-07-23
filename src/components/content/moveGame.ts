@@ -1,3 +1,4 @@
+import {log} from "util";
 
 
 export const movePlayer = (index: any, newField: any, player: any) => {
@@ -79,16 +80,16 @@ export const movePlayer = (index: any, newField: any, player: any) => {
         }
     }
 
-    winsMove(wins_y, player)
-    winsMove(wins_x, player)
-    winsMove(wins_z, player)
-    winsMove(wins_rz, player)
+    winsMove(wins_y, player, index)
+    winsMove(wins_x, player, index)
+    winsMove(wins_z, player, index)
+    winsMove(wins_rz, player, index)
 
 }
 
 
 
-const winsMove = (arrWins: any, player: any) => {
+const winsMove = (arrWins: any, player: any, index: any) => {
     for (let i = 0; i < arrWins.length; i++) {
         if (
             arrWins[i + 0] === player &&
@@ -98,7 +99,7 @@ const winsMove = (arrWins: any, player: any) => {
             arrWins[i + 4] === player &&
             arrWins[i + 5] === player
         ) {
-            alert(`${player} wins`)
+            console.log(`${player} wins`, index)
             break
         }
     }
