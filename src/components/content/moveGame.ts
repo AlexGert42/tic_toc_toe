@@ -8,6 +8,11 @@ export const movePlayer = (index: any, newField: any, player: any) => {
     let wins_z = []
     let wins_rz = []
 
+    let res_y;
+    let res_x;
+    let res_z;
+    let res_rz;
+
     for (let i = 0; i < 7; i++) {
         if (index[0] + i >= 0 && index[0] + i <= 14) {
             if (newField[index[0] + i][index[1]].player === player) {
@@ -80,16 +85,20 @@ export const movePlayer = (index: any, newField: any, player: any) => {
         }
     }
 
-    winsMove(wins_y, player, index)
-    winsMove(wins_x, player, index)
-    winsMove(wins_z, player, index)
-    winsMove(wins_rz, player, index)
 
+    res_y = winsMove(wins_y, player, index)
+    res_x = winsMove(wins_x, player, index)
+    res_z = winsMove(wins_z, player, index)
+    res_rz = winsMove(wins_rz, player, index)
+
+
+    return [res_y, res_x, res_z, res_rz]
 }
 
 
 
 const winsMove = (arrWins: any, player: any, index: any) => {
+    let res = false;
     for (let i = 0; i < arrWins.length; i++) {
         if (
             arrWins[i + 0] === player &&
@@ -99,8 +108,10 @@ const winsMove = (arrWins: any, player: any, index: any) => {
             arrWins[i + 4] === player &&
             arrWins[i + 5] === player
         ) {
-            console.log(`${player} wins`, index)
+            console.log(`${player} wins`)
+            res = true
             break
         }
     }
+    return res
 }
