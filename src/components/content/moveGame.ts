@@ -92,7 +92,10 @@ export const movePlayer = (index: any, newField: any, player: any) => {
     res_rz = winsMove(wins_rz, player, index)
 
 
-    return [res_y, res_x, res_z, res_rz]
+    if (res_y || res_x || res_z || res_rz) {
+        return true
+    }
+
 }
 
 
@@ -108,7 +111,7 @@ const winsMove = (arrWins: any, player: any, index: any) => {
             arrWins[i + 4] === player &&
             arrWins[i + 5] === player
         ) {
-            console.log(`${player} wins`)
+            // console.log(`${player} wins`)
             res = true
             break
         }

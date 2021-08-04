@@ -105,55 +105,178 @@ export default connect(mapStateToProps, mapDispatchToProps)(PlayingFieldContaine
 
 
 const bot = (field: any, index: any, player: any) => {
-    // const newField = [...field.map((line: any) => {
-    //     return [...line.map((cell: any) => {
-    //         return {...cell}
-    //     })]
-    // })]
 
-    let count = 0
-    let countRec = 0
 
-    const analisis = () => {
+    let totelWinsX: any = []
+    let totelWinsO: any = []
 
+    let countPart = 0
+
+    gameAnalisis()
+
+
+    let maxX = 0
+    let maxO = 0
+
+    let indexPlayerX: any = []
+    let indexPlayerO: any = []
+
+
+
+
+
+    const newBoardX = [...field.map((line: any) => {
+        return [...line.map((cell: any) => {
+            return {...cell}
+        })]
+    })]
+
+    const newBoardO = [...field.map((line: any) => {
+        return [...line.map((cell: any) => {
+            return {...cell}
+        })]
+    })]
+
+
+    newBoardX.map((line: any) => line.map((el: any) => {
+        totelWinsX.map((inxLine: any) => inxLine.map((inx: any) => {
+            if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
+                el.weligth += 1
+            }
+        }))
+    }))
+
+    newBoardO.map((line: any) => line.map((el: any) => {
+        totelWinsO.map((inxLine: any) => inxLine.map((inx: any) => {
+            if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
+                el.weligth += 1.1
+            }
+        }))
+    }))
+
+
+
+
+
+    newBoardX.map((line: any) => line.map((el: any) => {
+        if (el.weligth > maxX) {
+            maxX = el.weligth
+            indexPlayerX = [el.indexLine, el.indexCell]
+        }
+    }))
+
+    newBoardO.map((line: any) => line.map((el: any) => {
+        if (el.weligth > maxX) {
+            maxO = el.weligth
+            indexPlayerO = [el.indexLine, el.indexCell]
+        }
+    }))
+
+
+
+    if (maxX >= maxO) {
+        field[indexPlayerX[0]][indexPlayerX[1]].player = 'O'
+    } else {
+        field[indexPlayerO[0]][indexPlayerO[1]].player = 'O'
+    }
+
+
+
+
+
+
+
+
+
+
+    function gameAnalisis() {
+        const newField = [...field.map((line: any) => {
+            return [...line.map((cell: any) => {
+                return {...cell}
+            })]
+        })]
+
+        let partXMove: any = []
+        let partOMove: any = []
+
+        let countGameVirtyal = 0
+
+        let part: any = gameVirtual(newField, partXMove, partOMove, [], countGameVirtyal)
+
+        countPart++
+
+        if (part[0] == 'x_win') {
+            totelWinsX.push(part[2])
+        } else if (part[0] == 'o_win') {
+            totelWinsO.push(part[1])
+        }
+
+
+        if (countPart <= 5000) {
+
+                gameAnalisis()
+
+
+        }
+
+    }
+
+
+    function gameVirtual(field: any, movesX: any, movesO: any, winP: any, count: any) {
+        let countRec = 0
+        count++
 
         if (count % 2 === 0) {
-            rec(field, 'X')
+            let moveO = rec1(field, 'O', countRec)
+            if (moveO) {
+                movesO.push(moveO)
+                let resO = movePlayer([moveO[0], moveO[1]], field, 'O')
+                if (resO) {
+                    winP.push('o_win')
+                    return [winP, movesO, movesX]
+                }
+            }
         } else {
-            rec(field, 'O')
+            let moveX = rec1(field, 'X', countRec)
+            if (moveX) {
+                movesX.push(moveX)
+                let resX = movePlayer([moveX[0], moveX[1]], field, 'X')
+                if (resX) {
+                    winP.push('x_win')
+                    return [winP, movesO, movesX]
+                }
+            }
         }
+
+        if (count <= 255) {
+            gameVirtual(field, movesX, movesO, winP, count)
+        }
+
+
+        return [winP, movesO, movesX]
+    }
+
+
+    function rec1(field: any, player: any, count: any) {
         count++
         if (count >= 255) {
-            return
+            return null
+        }
+
+        let inx1 = Math.floor(Math.random() * (15))
+        let inx2 = Math.floor(Math.random() * (15))
+
+
+        if (field[inx1][inx2].player !== 'X' && field[inx1][inx2].player !== 'O') {
+            field[inx1][inx2].player = player
+            return [inx1, inx2]
+
         } else {
-            analisis()
+            rec1(field, player, count)
         }
 
 
     }
-
-
-    const rec = ( field: any, player: any) => {
-        if (countRec >= 1000) {
-            return
-        }
-        countRec++
-        let pos1 = Math.floor(Math.random() * (15))
-        let pos2 = Math.floor(Math.random() * (15))
-
-        if (field[pos1][pos2].player !== 'X' && field[pos1][pos2].player !== 'O' ) {
-            field[pos1][pos2].player = player
-            console.log('Y:', pos1, 'X:', pos2, 'P:', player)
-            movePlayer([pos1, pos2], field, player)
-        } else {
-            rec(field, player)
-        }
-
-    }
-
-
-    analisis()
-
 
 
 
