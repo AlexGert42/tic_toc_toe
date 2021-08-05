@@ -109,10 +109,10 @@ const bot = (field: any, index: any, player: any) => {
 
     let totelWinsX: any = []
     let totelWinsO: any = []
-
+    let moves = movePoll(index)
     let countPart = 0
 
-    gameAnalisis()
+    gameAnalisis(moves)
 
 
     let maxX = 0
@@ -149,7 +149,7 @@ const bot = (field: any, index: any, player: any) => {
     newBoardO.map((line: any) => line.map((el: any) => {
         totelWinsO.map((inxLine: any) => inxLine.map((inx: any) => {
             if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
-                el.weligth += 1.1
+                el.weligth += 1.2
             }
         }))
     }))
@@ -189,7 +189,7 @@ const bot = (field: any, index: any, player: any) => {
 
 
 
-    function gameAnalisis() {
+    function gameAnalisis(moves: any) {
         const newField = [...field.map((line: any) => {
             return [...line.map((cell: any) => {
                 return {...cell}
@@ -201,7 +201,7 @@ const bot = (field: any, index: any, player: any) => {
 
         let countGameVirtyal = 0
 
-        let part: any = gameVirtual(newField, partXMove, partOMove, [], countGameVirtyal)
+        let part: any = gameVirtual(moves, newField, partXMove, partOMove, [], countGameVirtyal)
 
         countPart++
 
@@ -212,9 +212,9 @@ const bot = (field: any, index: any, player: any) => {
         }
 
 
-        if (countPart <= 5000) {
+        if (countPart <= 1000) {
 
-                gameAnalisis()
+                gameAnalisis(moves)
 
 
         }
@@ -222,12 +222,12 @@ const bot = (field: any, index: any, player: any) => {
     }
 
 
-    function gameVirtual(field: any, movesX: any, movesO: any, winP: any, count: any) {
+    function gameVirtual(moves: any, field: any, movesX: any, movesO: any, winP: any, count: any) {
         let countRec = 0
         count++
 
         if (count % 2 === 0) {
-            let moveO = rec1(field, 'O', countRec)
+            let moveO = rec1(moves, field, 'O', countRec)
             if (moveO) {
                 movesO.push(moveO)
                 let resO = movePlayer([moveO[0], moveO[1]], field, 'O')
@@ -237,7 +237,7 @@ const bot = (field: any, index: any, player: any) => {
                 }
             }
         } else {
-            let moveX = rec1(field, 'X', countRec)
+            let moveX = rec1(moves, field, 'X', countRec)
             if (moveX) {
                 movesX.push(moveX)
                 let resX = movePlayer([moveX[0], moveX[1]], field, 'X')
@@ -249,7 +249,7 @@ const bot = (field: any, index: any, player: any) => {
         }
 
         if (count <= 255) {
-            gameVirtual(field, movesX, movesO, winP, count)
+            gameVirtual(moves, field, movesX, movesO, winP, count)
         }
 
 
@@ -257,24 +257,65 @@ const bot = (field: any, index: any, player: any) => {
     }
 
 
-    function rec1(field: any, player: any, count: any) {
+    function rec1(moves: any, field: any, player: any, count: any) {
         count++
-        if (count >= 255) {
+        if (count >= 35) {
             return null
         }
 
-        let inx1 = Math.floor(Math.random() * (15))
-        let inx2 = Math.floor(Math.random() * (15))
+        // let inx1 = Math.floor(Math.random() * (15))
+        // let inx2 = Math.floor(Math.random() * (15))
+
+        let inx = Math.floor(Math.random() * (moves.length))
+        let index = moves[inx]
 
 
-        if (field[inx1][inx2].player !== 'X' && field[inx1][inx2].player !== 'O') {
-            field[inx1][inx2].player = player
-            return [inx1, inx2]
+        if (field[index[0]][index[1]].player !== 'X' && field[index[0]][index[1]].player !== 'O') {
+            field[index[0]][index[1]].player = player
+            return [index[0], index[1]]
 
         } else {
-            rec1(field, player, count)
+            rec1(moves, field, player, count)
         }
 
+
+    }
+
+
+
+
+
+
+    function movePoll(indexUser: any) {
+        let move = []
+
+        for (let i = 0; i < 10; i++) {
+            if (index[0] + i >= 0 && index[0] + i <= 14) {
+                move.push([index[0] + i, index[1]])
+            }
+            if (index[0] - i >= 0 && index[0] - i <= 14) {
+                move.push([index[0] - i, index[1]])
+            }
+            if (index[1] + i >= 0 && index[1] + i <= 14) {
+                move.push([index[0], index[1] + i])
+            }
+            if (index[1] - i >= 0 && index[1] - i <= 14) {
+                move.push([index[0], index[1] - i])
+            }
+            if (index[0] + i <= 14 && index[1] + i <= 14) {
+                move.push([index[0] + i, index[1] + i])
+            }
+            if (index[0] - i >= 0 && index[1] - i >= 0) {
+                move.push([index[0] - i, index[1] - i])
+            }
+            if (index[0] + i <= 14 && index[1] - i >= 0) {
+                move.push([index[0] + i, index[1] - i])
+            }
+            if (index[0] - i >= 0 && index[1] + i <= 14) {
+                move.push([index[0] - i, index[1] + i])
+            }
+        }
+        return move
 
     }
 
