@@ -1,7 +1,7 @@
 import {connect} from "react-redux";
 import {PlayingField} from "./PlayingField";
 import {useEffect} from "react";
-import {setCount, setField, setUserAction} from "../../redux/gameField/action";
+import {MoveBot, setCount, setField, setUserAction} from "../../redux/gameField/action";
 import {movePlayer} from "./moveGame";
 
 
@@ -14,7 +14,9 @@ const PlayingFieldContainer = ({
                                    setCount,
                                    count,
                                    onePlayer,
-                                   twoPlayer
+                                   twoPlayer,
+                                   MoveBot,
+                                   lastMoveBot
                                }: any) => {
 
 
@@ -72,7 +74,13 @@ const PlayingFieldContainer = ({
             }))
             movePlayer(value, newField, 'X')
 
-            bot(newField, value, 'O')
+
+
+
+
+            let moveBot = bot(newField, value, lastMoveBot)
+            MoveBot(moveBot)
+
 
         }
 
@@ -90,26 +98,45 @@ const mapStateToProps = (state: any) => ({
     game: state.header.game,
     field: state.game.field,
     count: state.game.count,
+    lastMoveBot: state.game.lastMoveBot,
 
     onePlayer: state.header.onePlayer,
     twoPlayer: state.header.twoPlayer,
+
 })
 
 const mapDispatchToProps = ({
     setField,
     setUserAction,
-    setCount
+    setCount,
+    MoveBot
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(PlayingFieldContainer)
 
 
-const bot = (field: any, index: any, player: any) => {
-
+const bot = (field: any, index: any, lastMove: any) => {
+    let lastMoveBot = lastMove ? lastMove : index
 
     let totelWinsX: any = []
     let totelWinsO: any = []
-    let moves = movePoll(index)
+
+    // let movesUser = movePoll(index)
+    // let movesBot = movePoll(lastMoveBot)
+
+    let moves: any = []
+
+
+    field.map((line: any) => line.map((cell: any) => {
+        if (cell.player === 'X' || cell.player === 'O') {
+            let move = movePoll([cell.indexLine, cell.indexCell])
+            moves.push(...move)
+        }
+    }))
+
+
+
+
     let countPart = 0
 
     gameAnalisis(moves)
@@ -140,19 +167,55 @@ const bot = (field: any, index: any, player: any) => {
 
     newBoardX.map((line: any) => line.map((el: any) => {
         totelWinsX.map((inxLine: any) => inxLine.map((inx: any) => {
-            if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
-                el.weligth += 1
+            if (inxLine.length < 2) {
+                if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
+                    el.weligth += 5000
+                }
+
+            } else if (inxLine.length < 3) {
+                if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
+                    el.weligth += 3000
+                }
+
+            } else if (inxLine.length < 4) {
+                if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
+                    el.weligth += 500
+                }
+            }
+            else {
+                if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
+                    el.weligth += 1
+                }
             }
         }))
     }))
 
     newBoardO.map((line: any) => line.map((el: any) => {
         totelWinsO.map((inxLine: any) => inxLine.map((inx: any) => {
-            if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
-                el.weligth += 1.2
+            if (inxLine.length < 2) {
+                if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
+                    el.weligth += 5000
+                }
+
+            } else if (inxLine.length < 3) {
+                if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
+                    el.weligth += 3000
+                }
+
+            } else if (inxLine.length < 4) {
+                if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
+                    el.weligth += 500
+                }
+            }
+            else {
+                if (el.indexLine === inx[0] && el.indexCell === inx[1]) {
+                    el.weligth += 1
+                }
             }
         }))
     }))
+
+
 
 
 
@@ -173,16 +236,16 @@ const bot = (field: any, index: any, player: any) => {
     }))
 
 
+    let result: any = []
 
-    if (maxX >= maxO) {
+
+    if (maxX > maxO) {
         field[indexPlayerX[0]][indexPlayerX[1]].player = 'O'
+        result = [indexPlayerX[0], indexPlayerX[1]]
     } else {
         field[indexPlayerO[0]][indexPlayerO[1]].player = 'O'
+        result = [indexPlayerO[0], indexPlayerO[1]]
     }
-
-
-
-
 
 
 
@@ -212,7 +275,7 @@ const bot = (field: any, index: any, player: any) => {
         }
 
 
-        if (countPart <= 1000) {
+        if (countPart <= 4000) {
 
                 gameAnalisis(moves)
 
@@ -248,7 +311,7 @@ const bot = (field: any, index: any, player: any) => {
             }
         }
 
-        if (count <= 255) {
+        if (count <= moves.length) {
             gameVirtual(moves, field, movesX, movesO, winP, count)
         }
 
@@ -257,25 +320,31 @@ const bot = (field: any, index: any, player: any) => {
     }
 
 
-    function rec1(moves: any, field: any, player: any, count: any) {
+    function rec1(moves: any, vField: any, player: any, count: any) {
         count++
-        if (count >= 35) {
+        if (count >= 50) {
             return null
         }
 
-        // let inx1 = Math.floor(Math.random() * (15))
-        // let inx2 = Math.floor(Math.random() * (15))
+
+
+
+
+
+
 
         let inx = Math.floor(Math.random() * (moves.length))
         let index = moves[inx]
 
-
-        if (field[index[0]][index[1]].player !== 'X' && field[index[0]][index[1]].player !== 'O') {
-            field[index[0]][index[1]].player = player
+        if (vField[index[0]][index[1]].player !== 'X' && vField[index[0]][index[1]].player !== 'O') {
+            vField[index[0]][index[1]].player = player
             return [index[0], index[1]]
 
-        } else {
-            rec1(moves, field, player, count)
+        }
+        // vField[index[0]][index[1]].player = player
+        // return [index[0], index[1]]
+        else {
+            rec1(moves, vField, player, count)
         }
 
 
@@ -286,33 +355,50 @@ const bot = (field: any, index: any, player: any) => {
 
 
 
-    function movePoll(indexUser: any) {
+    function movePoll(index: any) {
         let move = []
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 6; i++) {
             if (index[0] + i >= 0 && index[0] + i <= 14) {
-                move.push([index[0] + i, index[1]])
+                if (field[index[0] + i][index[1]].player !== 'X' && field[index[0] + i][index[1]].player !== 'O') {
+                    move.push([index[0] + i, index[1]])
+                }
             }
             if (index[0] - i >= 0 && index[0] - i <= 14) {
-                move.push([index[0] - i, index[1]])
+                if (field[index[0] - i][index[1]].player !== 'X' && field[index[0] - i][index[1]].player !== 'O') {
+                    move.push([index[0] - i, index[1]])
+                }
             }
             if (index[1] + i >= 0 && index[1] + i <= 14) {
-                move.push([index[0], index[1] + i])
+                if (field[index[0]][index[1] + i].player !== 'X' && field[index[0]][index[1] + i].player !== 'O') {
+                    move.push([index[0], index[1] + i])
+                }
             }
             if (index[1] - i >= 0 && index[1] - i <= 14) {
-                move.push([index[0], index[1] - i])
+                if (field[index[0]][index[1] - i].player !== 'X' && field[index[0]][index[1] - i].player !== 'O') {
+                    move.push([index[0], index[1] - i])
+                }
             }
             if (index[0] + i <= 14 && index[1] + i <= 14) {
-                move.push([index[0] + i, index[1] + i])
+                if (field[index[0] + i][index[1] + i].player !== 'X' && field[index[0] + i][index[1] + i].player !== 'O') {
+                    move.push([index[0] + i, index[1] + i])
+                }
             }
             if (index[0] - i >= 0 && index[1] - i >= 0) {
-                move.push([index[0] - i, index[1] - i])
+                if (field[index[0] - i][index[1] - i].player !== 'X' && field[index[0] - i][index[1] - i].player !== 'O') {
+                    move.push([index[0] - i, index[1] - i])
+                }
             }
             if (index[0] + i <= 14 && index[1] - i >= 0) {
-                move.push([index[0] + i, index[1] - i])
+                if (field[index[0] + i][index[1] - i].player !== 'X' && field[index[0] + i][index[1] - i].player !== 'O') {
+                    move.push([index[0] + i, index[1] - i])
+                }
+
             }
             if (index[0] - i >= 0 && index[1] + i <= 14) {
-                move.push([index[0] - i, index[1] + i])
+                if (field[index[0] - i][index[1] + i].player !== 'X' && field[index[0] - i][index[1] + i].player !== 'O') {
+                    move.push([index[0] - i, index[1] + i])
+                }
             }
         }
         return move
@@ -320,7 +406,7 @@ const bot = (field: any, index: any, player: any) => {
     }
 
 
-
+    return result
 
 }
 

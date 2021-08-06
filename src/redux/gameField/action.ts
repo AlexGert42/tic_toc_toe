@@ -14,4 +14,7 @@ export const setUserAction = (field: any) => ({
 export const setCount = () => ({type: SET_COUNT})
 
 
-
+export const MoveBot = (move: any) => ({
+    type: MOVE_BOT,
+    payload: move
+})
